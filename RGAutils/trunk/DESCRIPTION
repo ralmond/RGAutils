@@ -1,0 +1,11 @@
+Package: CPTtools
+Version: 0.1-1
+Date: 2016/05/07
+Title: Generally useful utilties
+Author: Russell Almond
+Maintainer: Russell Almond <ralmond@fsu.edu>
+Depends: R (>= 3.0)
+Description: Small functions that are useful in lots of places
+License: Artistic-2.0 
+URL: http://pluto.coe.fsu.edu/RNetica
+

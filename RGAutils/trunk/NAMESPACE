@@ -1,0 +1,13 @@
+#import(methods)
+#import(utils)
+
+#importFrom(stats4,optim)
+
+export(scaleTable,scaleMatrix)
+
+## From WOE package
+export(colorspread)
+
+
+
+
