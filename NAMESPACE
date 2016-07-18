@@ -3,10 +3,20 @@
 
 #importFrom(stats4,optim)
 
-export(scaleTable,scaleMatrix)
+#export(scaleTable,scaleMatrix)
 
 ## From WOE package
 export(colorspread)
+
+## From CPT Tools
+export(numericPart,factorPart,dputToString,dgetFromString)
+S3method(median,ordered)
+
+## From matSweep
+export(matSweep,revSweep,orthoInvert,matASM,matMST,egg)
+
+## From Qreg
+export(Qreg)
 
 
 
