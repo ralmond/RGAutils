@@ -194,3 +194,21 @@ matMST <- function (Q, C=diag(nrow(Q)), do=1L:nrow(Q), done=integer()) {
   return(matMST(Q, C, do=do[-1], done=c(done,r1)))
 }
 
+SSX <- function (X,weights=1,side="left") {
+  X <- as.matrix(X)
+  sideint <- pmatch(tolower(side),c("left","right"))
+  if (is.na(sideint)) {
+    stop("Side must be 'left' or 'right'.")
+  }
+  if (sideint==1) {
+    X1 <- cbind(1,X)
+  } else {
+    X1 <- cbind(X,1)
+  }
+  if (!all(weights==1)) {
+    X1w <- sweep(X1,1,weights,"*")
+    return( crossprod(X1w,X1))
+  } else {
+    return( crossprod(X1))
+  }
+}

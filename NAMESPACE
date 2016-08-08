@@ -13,10 +13,10 @@ export(numericPart,factorPart,dputToString,dgetFromString)
 S3method(median,ordered)
 
 ## From matSweep
-export(matSweep,revSweep,orthoInvert,matASM,matMST,egg)
+export(matSweep,revSweep,orthoInvert,matASM,matMST,SSX)
 
-## From Qreg
-export(Qreg)
+## From BQreg
+export(BQreg)
 
 
 
