@@ -8,5 +8,6 @@ eggs <- data.frame(
                   0.6156, 0.6239, 0.6114, 0.6072, 0.6156, 0.6239),
     logVol  = c(2.031, 1.982, 1.995, 2.019, 2.031, 1.956,
                 2.007, 1.995, 1.995, 1.995, 1.995, 2.007))
+eggs <- as.matrix(eggs)
 
 ## Logs are all log base 10, and logVol is actually log (6/pi) V
