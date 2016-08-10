@@ -69,8 +69,8 @@ revSweep(A, ploc = 1L:nrow(A), tol = .Machine$double.eps^0.5)
   certainly have been better tested.)
 
   The sweep operator is associative, so that \eqn{SWP[1]SWP[2]\bold{Q} =
-  SWP[1:2]\bold{Q}$ and communtative so that \eqn{SWP[2:1]\bold{Q} =
-  SWP[1:2]\bold{Q}$.  The reverse sweep operator, \code{revSweep()} or
+  SWP[1:2]\bold{Q}} and communtative so that \eqn{SWP[2:1]\bold{Q} =
+  SWP[1:2]\bold{Q}}.  The reverse sweep operator, \code{revSweep()} or
   \eqn{RSW[k]\bold{Q}} undoes the sweep operation.
 
   The properties of the sweep operator are more interesting when the
@@ -79,7 +79,7 @@ revSweep(A, ploc = 1L:nrow(A), tol = .Machine$double.eps^0.5)
   augmented by setting the \eqn{p+1}st column to 1.  Let
   \eqn{\bold{Q}_{(+)} = \bold{X}_{(+)}^T\bold{X}_{(+)}}.   Note that the
   last row and column of \eqn{\bold{Q}_{(+)}} is the column sums of
-  \eqn{\bold{X}_{(+)}} with $q_{(+)p+1,p+1}=n$.  Sweeping on row and
+  \eqn{\bold{X}_{(+)}} with \eqn{q_{(+)p+1,p+1}=n}.  Sweeping on row and
   column \eqn{p+1} produces:
 
   \deqn{SWP[p+1]\bold{Q}_{(+)} = \left [ \begin{array}{cc}
@@ -148,29 +148,31 @@ eggsQplus <- t(eggsPlus)\%*\%eggsPlus
 
 ## Sweep out constant row and column.
 eggsTplus <- matSweep(eggsQplus,4)
-stopifnot(all(abs(eggsTplus[1:3,1:3]-(nrow(eggs)-1)*cov(eggs)) < .0001),
-          all(abs(eggsTplus[4,1:3]-apply(eggs,2,mean)) < .0001),
-          abs(eggsTplus[4,4]+1/nrow(eggs)) < .0001)
+stopifnot(all.equal(eggsTplus[1:3,1:3],(nrow(eggs)-1)*cov(eggs)),
+          all.equal(eggsTplus[4,1:3],apply(eggs,2,mean)),
+          all.equal(eggsTplus[4,4],-1/nrow(eggs)))
+
 
 ## Predict log(Volume) from other measures.
 eggsQ124 <- matSweep(eggsQplus,c(1:2,4))
 lm.eggs <- lm(logVol~logLength+logWidth,data=as.data.frame(eggs))
-stopifnot(all(abs(eggsQ124[3,c(4,1:2)] - coef(lm.eggs)) < .0001),
-          abs(eggsQ124[3,3] - deviance(lm.eggs)) < .0001)
+stopifnot(all.equal(eggsQ124[3,c(4,1:2)], coef(lm.eggs),check.attributes=FALSE),
+          all.equal(eggsQ124[3,3], deviance(lm.eggs)))
+
 
 
 ## Inversion using sweep
 eggsQinv <- matSweep(eggsQplus,1:4)
-stopifnot(all(abs(eggsQinv+solve(eggsQplus))<.0001))
+stopifnot(all.equal(eggsQinv,-solve(eggsQplus)))
 
 
 ## Commutative and associative properties.
 eggsQ421 <- matSweep(matSweep(eggsQplus,4),2:1)
-stopifnot(all(abs(eggsQ421-eggsQ124) <.0001))
+stopifnot(all.equal(eggsQ421,eggsQ124))
 
 ## Reverse sweep operator
 eggsQinv3 <- revSweep(eggsQinv,3)
-stopifnot(all(abs(eggsQinv3-eggsQ124) <.0001))
+stopifnot(all.equal(eggsQinv3,eggsQ124))
 
 }
 \keyword{ algebra }% use one of  RShowDoc("KEYWORDS")

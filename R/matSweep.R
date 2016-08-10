@@ -18,34 +18,25 @@ matSweep <- function (A, ploc= 1L:nrow(A), tol=.Machine$double.eps^0.5) {
   if (any(ploc < 1L) || any(ploc > nrow(A)) ||
       any( (ploc - round(ploc)) > tol))
     stop("Pivot locations must be integers referencing array rows.")
-  ### Uses tail recursion to loop through
-  matSweepAux(A,ploc,tol)
-}
-
-matSweepAux <- function (A, ploc, tol) {
-  ## Base Case
-  if (length(ploc) == 0L) return (A)
-  ## Pivot first index
-  k <- ploc[1]                          #Goodnight SWEEP(k) operator
-  D <- A[k,k]                           #Step 1
-  if (abs(D) < tol) {
-    stop("Singular pivot at location",k)
-  }
-  A[k,] <- A[k,]/D                      #Step 2
-  for (i in 1L:nrow(A)) {               #Step 3
-    if (i != k ) {
-      B <- A[i,k]
-      A[i,] <- A[i,] - B*A[k,]
-      A[i,k] <- B/D
-      # Goodnight: A[i,k] <- - B/D
+  for (k in ploc) { #Sweep on k
+    D <- A[k,k]                           #Step 1
+    if (abs(D) < tol) {
+      stop("Singular pivot at location",k)
     }
+    A[k,] <- A[k,]/D                      #Step 2
+    for (i in 1L:nrow(A)) {               #Step 3
+      if (i != k ) {
+        B <- A[i,k]
+        A[i,] <- A[i,] - B*A[k,]
+        A[i,k] <- B/D
+                                        # Goodnight: A[i,k] <- - B/D
+      }
+    }
+    A[k,k] <- -1/D                         #Step 4
+                                        # Goodnight:  A[k,k] <- 1/D
   }
-  A[k,k] <- -1/D                         #Step 4
-  # Goodnight:  A[k,k] <- 1/D
-  ## Recurse
-  matSweepAux(A,ploc[-1],tol)
+  A
 }
-
 
 ### Function revSweep
 ### Args:
@@ -59,8 +50,22 @@ revSweep <- function (A, ploc= 1L:nrow(A), tol=.Machine$double.eps^0.5) {
   if (any(ploc < 1L) || any(ploc > nrow(A)) ||
       any( (ploc - round(ploc)) > tol))
     stop("Pivot locations must be integers referencing array rows.")
-  ### Uses tail recursion to loop through
-  revSweepAux(A,ploc,tol)
+  for (k in ploc) { # RevSweep(k)
+    D <- A[k,k]                           #Step 1
+    if (abs(D) < tol) {
+      stop("Singular pivot at location",k)
+    }
+    A[k,] <- -A[k,]/D                      #Step 2
+    for (i in 1L:nrow(A)) {               #Step 3
+      if (i != k ) {
+        B <- A[i,k]
+        A[i,] <- A[i,] + B*A[k,]
+        A[i,k] <- - B/D
+      }
+    }
+    A[k,k] <- -1/D                         #Step 4
+  }
+  A
 }
 
 ###
@@ -68,29 +73,6 @@ revSweep <- function (A, ploc= 1L:nrow(A), tol=.Machine$double.eps^0.5) {
 ## Rubin (2002), p 151, and adapting it to fit into the Algorithm
 ## version of Goodnight.
 ## Now fixed using Dempster (1969), p 67.
-
-
-revSweepAux <- function (A, ploc, tol) {
-  ## Base Case
-  if (length(ploc) == 0L) return (A)
-  ## Pivot first index
-  k <- ploc[1]                          #Goodnight SWEEP(k) operator
-  D <- A[k,k]                           #Step 1
-  if (abs(D) < tol) {
-    stop("Singular pivot at location",k)
-  }
-  A[k,] <- -A[k,]/D                      #Step 2
-  for (i in 1L:nrow(A)) {               #Step 3
-    if (i != k ) {
-      B <- A[i,k]
-      A[i,] <- A[i,] + B*A[k,]
-      A[i,k] <- - B/D
-    }
-  }
-  A[k,k] <- -1/D                         #Step 4
-  ## Recurse
-  revSweepAux(A,ploc[-1],tol)
-}
 
 
 #### Orthoganalization using Sweep opperator.

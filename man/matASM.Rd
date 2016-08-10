@@ -109,7 +109,8 @@ DQ2.1a34 <- matASM(DQ2.1,DQ[1:2,3:4],DQ[3:4,3:4],1)
 DQ234.1 <- matSweep(DQ,1)
 
 ## Should have gotten to the same place
-stopifnot(all (abs(DQ234.1-DQ2.1a34) < .00001))
+stopifnot(all.equal(DQ234.1,DQ2.1a34))
+
 
 }
 \keyword{ array }% use one of  RShowDoc("KEYWORDS")
