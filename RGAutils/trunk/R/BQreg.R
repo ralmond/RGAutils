@@ -32,7 +32,7 @@ BQreg <- function(Y,X,Q=matrix(TRUE,ncol(Y),ncol(X)),weights=1) {
 ## Assume that X is completely observed, but that there may be missing
 ## data in Y.
 
-MbuildT <- function(X,Y,B,b0,Syy.x,w=1) {
+EbuildT <- function(X,Y,B,b0,Syy.x,w=1) {
   X <- as.matrix(X)
   Y <- as.matrix(Y)
   K <- ncol(X)
@@ -76,7 +76,8 @@ MbuildT <- function(X,Y,B,b0,Syy.x,w=1) {
     whichobs <- which(mp==Mpat)
     whichvars <- 1+K+which(M[whichobs[1],])
     ## Produce regression
-    swpT0 <- matSweep(T0,setdiff(1:nrow(T0),whichvars))
+    ## Already swept on row 1, so start there.
+    swpT0 <- matSweep(T0,setdiff(2:nrow(T0),whichvars))
     ## Mean imputation into missing cells
     XY1[whichobs,whichvars] <-
       XY1[whichobs,-whichvars,drop=FALSE] %*%
@@ -86,5 +87,8 @@ MbuildT <- function(X,Y,B,b0,Syy.x,w=1) {
       sumwt*swpT0[whichvars,whichvars]
   }
   T <- crossprod(sweep(XY1,1,w,"*"),XY1) + T
+  T <- matSweep(T,1)
+  sumwt <- ifelse(length(w)==1,nrow(XY1),sum(w))
+  T[-1,-1] <- T[-1,-1]/sumwt
   list(T=T,XY1=XY1,M=M)
 }

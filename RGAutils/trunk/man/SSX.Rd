@@ -107,21 +107,21 @@ stopifnot(as.integer(eggsQ[1,1])==nrow(eggs))
 
 ## Sweep out constant row and column.
 eggsT <- matSweep(eggsQ,1)
-stopifnot(all(abs(eggsT[2:4,2:4]-(nrow(eggs)-1)*cov(eggs)) < .0001),
-          all(abs(eggsT[1,2:4]-apply(eggs,2,mean)) < .0001),
-          abs(eggsT[1,1]+1/nrow(eggs)) < .0001)
+stopifnot(all.equal(eggsT[2:4,2:4],(nrow(eggs)-1)*cov(eggs)),
+          all.equal(eggsT[1,2:4],apply(eggs,2,mean)),
+          all.equal(eggsT[1,1],-1/nrow(eggs)))
 
 ## Test of weighted version
 wt <- c(rep(2/3,6), rep(1/3,6))
 eggwQ <- SSX(eggs,wt,side="right")
-stopifnot(abs(eggwQ[4,4]-sum(wt)) < .00001)
+stopifnot(all.equal(eggwQ[4,4],sum(wt)))
 
 ## Sweep
 eggwT <- matSweep(eggwQ,4)
 ## Weighted mean.
 eggwcov <- cov.wt(eggs,wt,method="ML")
-stopifnot (all(abs(eggwT[1:3,1:3]/(sum(wt))- eggwcov$cov) < .0001),
-           all(abs(eggwT[4,1:3]-eggwcov$center) < .0001))
+stopifnot (all.equal(eggwT[1:3,1:3]/(sum(wt)), eggwcov$cov),
+           all.equal(eggwT[4,1:3],eggwcov$center))
 
 
 }
