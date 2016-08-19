@@ -34,7 +34,7 @@
 }
 \source{
   These data in the original unpermuted form are available as
-  \code{\link[mvnmle}{missvals}} in the \code{mvnmle} package.
+  \code{\link[mvnmle]{missvals}} in the \code{mvnmle} package.
 }
 \references{
 

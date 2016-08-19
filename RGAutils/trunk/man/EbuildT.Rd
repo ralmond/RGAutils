@@ -93,6 +93,9 @@ MbuildT(X, Y, B, b0, Syy.x, w = 1)
   of an EM-algorithm for the multivariate normal distribuiton.  Note
   that the imputed data matrix is also returned.
 
+  Finally, as this is based on the EM-algoirthm, it will only produce
+  unbiased estimates when the data are missing at random.
+
 }
 \value{
   A list with three components:
@@ -143,5 +146,5 @@ Tstep <- EbuildT(mvX, mvY, mv.BB, mv.B0, mv.Syy.x, w=1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ multivariate }% use one of  RShowDoc("KEYWORDS")
+\keyword{ regression }% __ONLY ONE__ keyword per line
