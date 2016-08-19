@@ -1,28 +1,113 @@
-BQreg <- function(Y,X,Q=matrix(TRUE,ncol(Y),ncol(X)),weights=1) {
+BQreg <- function(X,Y,Q=matrix(TRUE,ncol(Y),ncol(X)),weights=1,
+                  maxstep=25L,tolerance=10*sqrt(.Machine$double.eps),
+                  trace=FALSE) {
+  if (is.data.frame(X)) {
+    X <- as.matrix(X)
+  }
+  if (is.data.frame(Y)) {
+    Y <- as.matrix(Y)
+  }
   if (nrow(Y) != nrow(X)) {
     stop("X and Y not same length")
   }
-  if (ncol(Y) != nrow(Q) || ncol(X) != ncol(Q)) {
-    stop("Q matrix must be ",ncol(Y),"by",ncol(X))
+  J <- ncol(Y)
+  K <- ncol(X)
+  if (nrow(Q) != J || ncol(Q) !=K) {
+    stop("Q matrix must be ",J,"by",K)
   }
-  ## Apply weights to X
-  wX <- sweep(X,1,weights,"*")
-  XtwX <- t(wX)%*%X
+  ## Calculate sufficient statistic matrix, T
+  ## First, do a first pass estimate using complete cases.
+  complete <- !apply(is.na(Y),1,any)
+  wc <- weights
+
+  T0 <- SSX(cbind(X[complete,],Y[complete,]),
+            ifelse(length(weights)>1,weights[complete],weights))
+  sumwc <- T0[1,1]                      #Sum of weights
+  T0 <- matSweep(T0,1)
+  T0[-1,-1] <- T0[-1,-1]/sumwc
+  if (all(complete)) {
+    converged <- TRUE
+    iterations <- 0
+    BQ <- TQB(T0,Q)
+    B <- BQ$B
+    b0 <- BQ$b0
+    Syy.x0 <- BQ$Syy.x
+  } else {
+    ## Missing data, EM time:
+    converged <- FALSE
+    for (iterations in 1L:maxstep) {
+      BSest <- TQB(T0,Q)
+      T1 <- EbuildT(X,Y,BSest$B,BSest$b0,BSest$Syy.x,weights)$T
+      diff <- max(abs(T1-T0))
+      T0 <- T1
+      if (trace)
+        cat("Iteration,",iterations,"max difference:",diff,"\n")
+      if (diff < tolerance) {
+        converged <- TRUE
+        break
+      }
+    }                                   #End of loop
+    BQ <- TQB(T0,Q)
+    B <- BQ$B
+    b0 <- BQ$b0
+    Syy.x0 <- BQ$Syy.x
+  }                                     #End of EM
+  ## Calculate residual covariance matrix.
+  resid <- Y - sweep(tcrossprod(X,B),2,b0,"+")
+  na.resid <- is.na(resid)
+  resid[na.resid] <- 0                  #Zero residual if NA
+  if (length(weights)==1) {
+    weights <- rep(weights,nrow(X))
+  }
+  Syy.x <- cov.wt(resid,weights,center=FALSE,method="ML")$cov
+  if (any(na.resid)) {
+    ## Adjust elements of covariance matrix as needed.
+    for (j1 in 1:(J-1)) {
+      whichmiss <- na.resid[,j1]
+      if (!any(whichmiss)) next         #Skip complete data
+      ## Diagonal adjustment
+      Syy.x[j1,j1] <- Syy.x[j1,j1] + Syy.x0[j1,j1]*sum(weights[whichmiss])
+      for (j2 in (j1+1):J) {
+        whichmiss <- na.resid[,j1] & na.resid[,j2]
+        if (!any(whichmiss)) next       #Skip complete data where both
+                                        #are not missing.
+        Syy.x[j1,j2] <- Syy.x[j1,j2] + Syy.x0[j1,j2]*sum(weights[whichmiss])
+        Syy.x[j2,j1] <- Syy.x[j1,j2]    #Symmetry
+      }                                 #next j2
+    }                                   #next j1
+  }                                     #End of missing data processing
+
+  list(B=B,b0=b0,Syy.x=Syy.x,
+       converged=converged,iterations=iterations)
+}
+
+TQB <- function (T,Q) {
+
   ## Force Q to be logical
   Q <- array(as.logical(Q),dim(Q))
+  K <- ncol(Q)
+  J <- nrow(Q)
+
+  ## Coefficients
+  B <- array(0,dim(Q))
+  b0 <- rep(0,nrow(Q))
+  ## Residual covariance matrix.
+  Syy.x <- matrix(0,J,J)
+
   ## Find unique patterns
   Qpat <- apply(sweep(Q,2,2^(0:(ncol(Q)-1)),"*"),1,sum)
 
   ## Loop unique patterns.
-  H <- array(NA_real_,dim(Q))
+
   for (qp in unique(Qpat)) {
-    whichvars <- which(qp==Qpat)
-    mask <- Q[whichvars[1],]            #Same for all matching vars.
-    ## Solve normal equations for appropriate subset
-    beta <- solve(XtwX[mask,mask])%*%t(wX[,mask])%*%Y[,whichvars]
-    H[whichvars,mask] <- t(beta)
+    whichY <- which(qp==Qpat)
+    whichX <- which(Q[whichY[1],])   #Same for all matching vars.
+    sT <- matSweep(T,1+whichX)
+    B[whichY,whichX] <- sT[1+K+whichY,1+whichX]
+    b0[whichY] <- sT[1+K+whichY,1]
+    Syy.x[whichY,whichY] <- sT[1+K+whichY,1+K+whichY]
   }
-  H
+  list(B=B,b0=b0,Syy.x=Syy.x)
 }
 
 

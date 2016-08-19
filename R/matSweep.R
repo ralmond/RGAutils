@@ -124,56 +124,49 @@ matASM <- function (swpQ,Q123,Q33,ploc=1L:nrow(swpQ)) {
   K11 <- swpQ[ploc,ploc,drop=FALSE]
   Q13 <- Q123[ploc,,drop=FALSE]
   H13 <- -K11%*%Q13
-#  recover()
   KK[ploc,rr] <- H13
   KK[rr,ploc] <- t(H13)
   KK[rr,rr] <- Q33 - t(H13)%*%Q13
-#  recover()
   ## Check for empty Q22 case
   if (length(ploc) < nrow(swpQ)) {
     H21 <- swpQ[-ploc,ploc,drop=FALSE]
     Q23 <- Q123[-ploc,,drop=FALSE]
-#    recover()
     KK[-c(ploc,rr),rr] <- Q23 - H21%*%Q13
     KK[rr,-c(ploc,rr)] <- t(KK[-c(ploc,rr),rr])
-#    recover()
   }
-#  recover()
   KK
 }
 
 
 matMST <- function (Q, C=diag(nrow(Q)), do=1L:nrow(Q), done=integer()) {
-  ## Base case
-  if (length(do) == 0L)
-    return (list(Q=Q, C=C, done=done))
-  ## This is the row we are affecting
-  r1 <- do[1]
-  undone <-setdiff(setdiff(1:nrow(Q),done),r1)
-  ## Row of Q**21 on which we are operating.
-  if (length(done)>0L) {
-    qr1done <- Q[r1,done]
-    C[r1,] <- C[r1,] - qr1done%*%C[done,]
-  } else {
-    qr1done <- numeric()
-  }
-  Ur1.norm <- sqrt(Q[r1,r1] - sum(qr1done^2))
-  C[r1,] <- C[r1,]/Ur1.norm
-  if (length(undone) > 0L) {
-    if (length(done) > 0L) {
-      qdud <- Q[done,undone]
-      Q[undone,r1] <- Q[undone,r1] - qr1done%*%qdud
+  for (r1 in do) {
+    undone <-setdiff(setdiff(1:nrow(Q),done),r1)
+    ## Row of Q**21 on which we are operating.
+    if (length(done)>0L) {
+      qr1done <- Q[r1,done]
+      C[r1,] <- C[r1,] - qr1done%*%C[done,]
+    } else {
+      qr1done <- numeric()
     }
-    Q[undone,r1] <- Q[undone,r1]/Ur1.norm
-    Q[r1,undone] <- Q[undone,r1]
+    Ur1.norm <- sqrt(Q[r1,r1] - sum(qr1done^2))
+    C[r1,] <- C[r1,]/Ur1.norm
+    if (length(undone) > 0L) {
+      if (length(done) > 0L) {
+        qdud <- Q[done,undone]
+        Q[undone,r1] <- Q[undone,r1] - qr1done%*%qdud
+      }
+      Q[undone,r1] <- Q[undone,r1]/Ur1.norm
+      Q[r1,undone] <- Q[undone,r1]
+    }
+    Q[r1,r1] <- 1
+    if (length(done)>0L) {
+      Q[done,r1] <- 0
+      Q[r1,done] <- 0
+    }
+    done <- c(done,r1)
   }
-  Q[r1,r1] <- 1
-  if (length(done)>0L) {
-    Q[done,r1] <- 0
-    Q[r1,done] <- 0
-  }
+  return (list(Q=Q, C=C, done=done))
 
-  return(matMST(Q, C, do=do[-1], done=c(done,r1)))
 }
 
 SSX <- function (X,weights=1,side="left") {

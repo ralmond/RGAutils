@@ -16,7 +16,7 @@ S3method(median,ordered)
 export(matSweep,revSweep,orthoInvert,matASM,matMST,SSX)
 
 ## From BQreg
-export(BQreg,EbuildT)
+export(BQreg,EbuildT,TBQ)
 
 
 

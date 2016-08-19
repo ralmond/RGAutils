@@ -169,5 +169,109 @@ Tmuhat <- Tstep1$T[1,c(4,5,2,6,3)]
 stopifnot(all.equal(lrTumm,Tmuhat))
 stopifnot(all.equal(lrTumS,Tsigmahat))
 
+data(twoskill)
+
+## data1 has a bit of residual standard deviation.
+That1 <- matSweep(SSX(as.matrix(twoskill.data1),1),1)
+## Normalize covariance estimates
+That1[-1,-1] <- That1[-1,-1]/nrow(twoskill.data1)
+
+Best1 <- TQB(That1,twoskill.Q)
+
+lmt1 <- lm(Test1~Skill1,data=twoskill.data1)
+lmt2 <- lm(Test2~Skill2,data=twoskill.data1)
+lmI1 <- lm(IntTest1~Skill1+Skill2,data=twoskill.data1)
+lmI2 <- lm(IntTest2~Skill1+Skill2,data=twoskill.data1)
+
+lm.B <- rbind(c(coef(lmt1),0),c(coef(lmt2)[1],0,coef(lmt2)[2]),
+              coef(lmI1),coef(lmI2))
+Best1.B <- cbind(Best1$b0,Best1$B)
+stopifnot(all.equal(lm.B,Best1.B,check.attributes=FALSE))
+
+lm.rsde <- c(var(resid(lmt1)),var(resid(lmt2)),
+             var(resid(lmI1)),var(resid(lmI2)))
+stopifnot(all.equal(lm.rsde*99/100,diag(Best1$Syy.x)))
+
+## Once more with weights
+## data1 has a bit of residual standard deviation.
+wei <- runif(nrow(twoskill.data1),.1,.3)
+That1w <- matSweep(SSX(as.matrix(twoskill.data1),wei),1)
+## Normalize covariance estimates
+That1w[-1,-1] <- That1w[-1,-1]/sum(wei)
+
+Best1w <- RGAutils:::TQB(That1w,twoskill.Q)
+
+lmt1w <- lm(Test1~Skill1,data=twoskill.data1,weights=wei)
+lmt2w <- lm(Test2~Skill2,data=twoskill.data1,weights=wei)
+lmI1w <- lm(IntTest1~Skill1+Skill2,data=twoskill.data1,weights=wei)
+lmI2w <- lm(IntTest2~Skill1+Skill2,data=twoskill.data1,weights=wei)
+
+lmw.B <- rbind(c(coef(lmt1w),0),c(coef(lmt2w)[1],0,coef(lmt2w)[2]),
+              coef(lmI1w),coef(lmI2w))
+Best1w.B <- cbind(Best1w$b0,Best1w$B)
+stopifnot(all.equal(lmw.B,Best1w.B,check.attributes=FALSE))
+
+lmw.resids <- data.frame(t1=resid(lmt1w),t2=resid(lmt2w),
+                         I1=resid(lmI1w),I2=resid(lmI2w))
+
+lmw.rsde <- cov.wt(lmw.resids,wei,method="ML")$cov
+
+stopifnot(
+    all.equal(diag(lmw.rsde),diag(Best1w$Syy.x),check.attributes=FALSE)
+    )
+
+
+
+####################################
+###
+## BQ Regression tests
+
+Est0 <- BQreg(twoskill.data0[,1:2],twoskill.data0[,3:6],
+              twoskill.Q)
+
+## data0 has no noise, so should recover parameters exactly
+stopifnot(all.equal(Est0$B,twoskill.B,check.attributes=FALSE),
+          all.equal(Est0$b0,twoskill.b0,check.attributes=FALSE),
+          Est0$converged==TRUE,Est0$iterations==0)
+
+
+Est1 <- BQreg(twoskill.data1[,1:2],twoskill.data1[,3:6],
+              twoskill.Q)
+Est1.B <- cbind(Est1$b0,Est1$B)
+stopifnot(all.equal(lm.B,Est1.B,check.attributes=FALSE))
+
+lm.resids <- data.frame(t1=resid(lmt1),t2=resid(lmt2),
+                        I1=resid(lmI1),I2=resid(lmI2))
+lm.rcov <- cov.wt(lm.resids,center=FALSE,method="ML")$cov
+
+stopifnot(
+    all.equal(lm.rcov,Est1$Syy.x, check.attributes=FALSE)
+    )
+
+####
+## Missing Data test
+data(mvMux)
+
+mvX <- mvMux[,1:2] # Complete Data
+mvY <- mvMux[,3:5] # Data with missing values.
+
+mvEst <- BQreg(mvX,mvY,maxstep=50)
+
+## This is basically the input matrix.  As this is the MLE, we should
+## reproduce it.
+
+lrT3a <- revSweep(lrT3,4:5)
+
+stopifnot(
+  all.equal(mvEst$B,lrT3a[4:6,2:3],check.attributes=FALSE),
+  all.equal(mvEst$b0,lrT3a[1,4:6],check.attributes=FALSE),
+  all.equal(mvEst$Syy.x,lrT3a[4:6,4:6],check.attributes=FALSE),
+  mvEst$converged==TRUE)
+
+
+
+
+
+
 
 

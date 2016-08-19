@@ -95,7 +95,7 @@ revSweep(A, ploc = 1L:nrow(A), tol = .Machine$double.eps^0.5)
   \eqn{SWP[c(1:(k-1),(k+1):(p+1))]\bold{Q}_{(+)}[k,k]} equal to the 
   residual variance.
 
-  Let \eqn{\bold{Q}} = \bold{X}}^T\bold{X}}} and \eqn{\bold{X}_1} is the
+  Let \eqn{\bold{Q} = \bold{X}^T\bold{X}} and \eqn{\bold{X}_1} is the
   first \eqn{k} columns and \eqn{\bold{X}_2} the remaining columns, and
   let \eqn{SWP[1:k]\bold{Q}} be the partitioned matrix shown above.
   Then the least squares linear predictor of \eqn{\bold{X}_2} from
