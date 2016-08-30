@@ -47,7 +47,7 @@ TQB(T, Q)
 
   If \eqn{\bold{X}} and \eqn{\bold{Y}} are fully observed, then
   \eqn{\bold{T}} can be easily esimated using
-  \code{\link[SSX](cbind(X,Y))}.  If the variables are not fully
+  \code{\link[SSX]{cbind(X,Y)}}.  If the variables are not fully
   observed then \eqn{\bold{T}} can be estimated using the EM-algorithm.
   (See \code{\link{EbuildT}} for the case where \eqn{\bold{Y}} has
   missing values.)
