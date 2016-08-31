@@ -59,15 +59,16 @@ BQreg <- function(X,Y,Q=matrix(TRUE,ncol(Y),ncol(X)),weights=1,
   if (length(weights)==1) {
     weights <- rep(weights,nrow(X))
   }
-  Syy.x <- cov.wt(resid,weights,center=FALSE,method="ML")$cov
+  Syy.x <- crossprod(sweep(resid,1,weights,"*"),resid)
   if (any(na.resid)) {
     ## Adjust elements of covariance matrix as needed.
-    for (j1 in 1:(J-1)) {
+    for (j1 in 1:J) {
       whichmiss <- na.resid[,j1]
       if (!any(whichmiss)) next         #Skip complete data
       ## Diagonal adjustment
       Syy.x[j1,j1] <- Syy.x[j1,j1] + Syy.x0[j1,j1]*sum(weights[whichmiss])
-      for (j2 in (j1+1):J) {
+      if (j1==J) break                  #Cross product terms finished
+      for (j2 in (j1+1):J) {            #Cross product terms
         whichmiss <- na.resid[,j1] & na.resid[,j2]
         if (!any(whichmiss)) next       #Skip complete data where both
                                         #are not missing.
@@ -75,6 +76,7 @@ BQreg <- function(X,Y,Q=matrix(TRUE,ncol(Y),ncol(X)),weights=1,
         Syy.x[j2,j1] <- Syy.x[j1,j2]    #Symmetry
       }                                 #next j2
     }                                   #next j1
+  Syy.x <- Syy.x/sum(weights)
   }                                     #End of missing data processing
 
   list(B=B,b0=b0,Syy.x=Syy.x,
