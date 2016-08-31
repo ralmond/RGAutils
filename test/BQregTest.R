@@ -153,7 +153,7 @@ lrSigmahat <- matrix(c( 21.826,   20.864, -24.900,  -11.473,   46.953,
                                     paste("x",1:5,sep="")))
 
 stopifnot(all.equal(lrmuhat,lrTumm,tolerance=.001))
-all.equal(lrTumS,lrSigmahat,tolerance=.001)
+stopifnot(all.equal(lrTumS,lrSigmahat,tolerance=.001))
 
 ## This is basically the input matrix.  As this is the MLE, we should
 ## reproduce it.
@@ -265,9 +265,18 @@ lrT3a <- revSweep(lrT3,4:5)
 stopifnot(
   all.equal(mvEst$B,lrT3a[4:6,2:3],check.attributes=FALSE),
   all.equal(mvEst$b0,lrT3a[1,4:6],check.attributes=FALSE),
-  all.equal(mvEst$Syy.x,lrT3a[4:6,4:6],check.attributes=FALSE),
+  all.equal(mvEst$Syy.x[1:2,1:2],lrT3a[4:5,4:5],check.attributes=FALSE),
   mvEst$converged==TRUE)
 
+## Syy.x[1:2,3] is different from lrT3a[4:5,6] because we are assuming
+## cross-products are zero by conditional independence.
+
+x4pred35 <- predict(lm4.35,mvMux)
+x4pred1235 <- predict(lm4.1235,mvMux)
+(sum((x4pred35[1:6]-mvMux$x4[1:6])^2)-lrT3a[6,6]*6)/13
+sum((x4pred1235[1:6]-mvMux$x4[1:6])^2)
+x4pred <- mvEst$b0[3] +mvMux$x3*mvEst$B[3,1]+mvMux$x5*mvEst$B[3,2]
+(sum((x4pred[1:6]-mvMux$x4[1:6])^2)-lrT3a[6,6]*6)/13
 
 
 
