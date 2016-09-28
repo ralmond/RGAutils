@@ -38,11 +38,3 @@ dgetFromString <- function (str) {
 }
 
 
-## Median method for ordered factors.
-## Follows the same syntax as median.
-## Adding this to your workspace will cause median() to work on ordered
-## variables.
-median.ordered <- function (x, na.rm = FALSE) {
-  result <- round(median(as.numeric(x),na.rm=na.rm))
-  ordered(levels(x)[result],levels=levels(x))
-}
