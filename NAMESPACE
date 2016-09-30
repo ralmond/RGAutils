@@ -18,6 +18,8 @@ export(matSweep,revSweep,orthoInvert,matASM,matMST,SSX)
 ## From BQreg
 export(BQreg,EbuildT,TQB)
 
+## Categorical Random Variables
+export(dcat)
 
 
 
