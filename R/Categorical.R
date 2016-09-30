@@ -34,6 +34,10 @@ rcat <- function(n,p,factor=TRUE,ordered=FALSE,
 }
 
 
+## Also should have a dcat function
+dcat <- function (x, p, log=FALSE) {
+  ## TODO Write Me
+}
 
 
 ## Median method for ordered factors.
