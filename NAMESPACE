@@ -10,6 +10,9 @@ export(colorspread)
 
 ## From CPT Tools
 export(numericPart,factorPart,dputToString,dgetFromString)
+
+## From Categorial
+export(rcat, dcat)
 S3method(median,ordered)
 
 ## From matSweep
