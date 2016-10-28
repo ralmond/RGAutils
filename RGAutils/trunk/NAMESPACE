@@ -12,7 +12,7 @@ export(colorspread)
 export(numericPart,factorPart,dputToString,dgetFromString)
 
 ## From Categorial
-export(rcat, dcat)
+export(rcat, dcat, rocat, docat, pocat, qocat)
 S3method(median,ordered)
 
 ## From matSweep
