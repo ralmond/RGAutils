@@ -12,11 +12,12 @@ export(colorspread)
 export(numericPart,factorPart,dputToString,dgetFromString)
 
 ## From Categorial
-export(rcat, dcat, rocat, docat, pocat, qocat)
+export(rcat, dcat, rocat, docat, pocat, qocat,median.ordered)
 S3method(median,ordered)
 
 ## From matSweep
 export(matSweep,revSweep,orthoInvert,matASM,matMST,SSX)
+export(is.pdm)
 
 ## From BQreg
 export(BQreg,EbuildT,TQB)
