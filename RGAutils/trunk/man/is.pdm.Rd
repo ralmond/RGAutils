@@ -7,12 +7,12 @@
 \usage{
 is.pdm(m, tol = sqrt(.Machine$double.eps))
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{m}{A matrix.  (Function returns \code{FALSE} if this argument is
     not a square matrix.)}
   \item{tol}{A tolerance value for the symmetry test and in the check for 0
     eigenvalues. }
+}
 \details{
   An object \code{m} is a positive definite matrix if it satisfies the
   following tests in order:
