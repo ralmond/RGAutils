@@ -25,5 +25,10 @@ export(BQreg,EbuildT,TQB)
 ## Categorical Random Variables
 export(dcat)
 
-
+## Factories
+export(Warehouse)
+exportClasses(Warehouse)
+export(Make,Free,Save,Reload,Delete) # Pnet
+exportMethods("Free")
+S3method("Free", default)
 
