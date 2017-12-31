@@ -23,10 +23,11 @@ NN <- nrow(dat)
 ## Replicate data
 repdat <- matrix(rep(dat,each=Npart),Npart*NN,Nitem)
 
-
 ## Initial PM parameters
 Sigma <- diag(Ntheta)
-mu <- matrix(0,NN,Ntheta)
+## Start based on unit loading and 0 intercept for all measures.
+mu <- scale(dat%*%bqm.Q)
+
 
 ##Set up initial draws for particles (theta realizations)
 thetas <- matrix(rep(mu,each=Npart),Npart*NN,Ntheta) +
@@ -47,6 +48,8 @@ for (icyc in 1L:Nburnin) {
   }
 
   ww <- dmvnorm(repdat-preddat,sigma=sig)
+  w0 <- apply(matrix(ww,Npart),2,sum)
+  weight <- ww/rep(w0,each=Npart)
 }
 
 
